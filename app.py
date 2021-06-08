@@ -4,7 +4,9 @@ from email.header import decode_header
 
 from bs4 import BeautifulSoup
 from flask import Flask
+from flask import redirect
 from flask import render_template
+from flask import request
 from flask_sqlalchemy import SQLAlchemy
 
 from ChapterRetrievers import RoyalRoadRetriever
@@ -49,11 +51,47 @@ def home():
     # Add any new chapters from RoyalRoad to database
     db_utils.update_RR_fictions()
 
+    # Add new chapters from the emails in aggregator inbox
+    db_utils.update_patreon_chapters()
+
     fictionList = db_utils.get_new_chapters()
 
+    # Mark all chapters of a fiction as read
     # db_utils.mark_all_as_read(Fictions.query.all()[1])
+
     return render_template('homepage.html', title='My Updated WebNovels', fictionList=fictionList,
                            fictionListLen=len(fictionList), sorry="No New Chapters, sorry ):")
+
+
+@app.route('/addFiction', methods=['GET', 'POST'])
+def addFiction():
+    try:
+        if request.method == 'POST':
+            fiction = request.form.get("fname")
+            author = request.form.get("fauth")
+            url = request.form.get("furl")
+            site = request.form.get("fsite")
+            fic = Fictions(
+                name=fiction,
+                url=url,
+                author=author,
+                patreon_RR=site
+            )
+            db.session().add(fic)
+            db.session.commit()
+    except:
+        pass
+    return redirect('/')
+
+
+@app.route('/mark_chapter_as_read', methods=['GET', 'POST'])
+def mark_chapter_as_read():
+    # Mark the chapter as read
+    Chapters.query.filter_by(url=request.form.get('chapter_url')).first().read = 1
+    db.session.commit()
+
+    # Refresh the page
+    return redirect('/')
 
 
 if __name__ == '__main__':
@@ -61,7 +99,24 @@ if __name__ == '__main__':
 
 
 class DatabaseUtilities:
-    def update_chapters(self, chapterList):
+
+    def update_patreon_chapters(self):
+        emails = self.read_gmail()
+        for chapter in emails:
+            try:
+                id = Fictions.query.filter_by(author=chapter.get('author')).first().fiction_id
+                url = chapter.get('url')
+                if Chapters.query.filter_by(fiction_id=id, url=url).count() == 0:
+                    chappy = Chapters(
+                        fiction_id=id,
+                        url=chapter.get('url'),
+                        title=chapter.get('chapterTitle'))
+                    db.session().add(chappy)
+                    db.session.commit()
+            except:
+                pass
+
+    def update_RR_chapters(self, chapterList):
         for chapter in chapterList:
             try:
                 id = Fictions.query.filter_by(name=chapter.get('fiction')).first().fiction_id
@@ -82,7 +137,7 @@ class DatabaseUtilities:
             if f.patreon_RR == 1:
                 soup = retriever.get_web_data(f.url)
                 chapterList = retriever.get_RR_ChapterList(soup)
-                self.update_chapters(chapterList)
+                self.update_RR_chapters(chapterList)
 
     def read_gmail(self):
         username = "webnovelaggregator1999@gmail.com"
@@ -97,10 +152,9 @@ class DatabaseUtilities:
 
         # total number of emails
         messages = int(messages[0])
-
+        emails = []
         for i in range(1, messages + 1):
 
-            emails = []
             # fetch the email message by ID
             res, msg = imap.fetch(str(i), "(RFC822)")
             for response in msg:
@@ -139,10 +193,11 @@ class DatabaseUtilities:
                         # get the email body
                         body = msg.get_payload(decode=True).decode()
             name = subject.replace('for patrons only', '')[1:]
+            author = name.strip().split('just')[0].strip()
             name = name.split('"')[1]
             chapter = {"chapterTitle": name,
-                       "url": BeautifulSoup(body, 'lxml').find_all('a')[2].attrs.get('href')
-                       # Add author data
+                       "url": BeautifulSoup(body, 'lxml').find_all('a')[2].attrs.get('href'),
+                       'author': author
                        }
             emails.append(chapter)
         # close the connection and logout
@@ -156,6 +211,9 @@ class DatabaseUtilities:
             chapterList = []
             for c in Chapters.query.filter_by(fiction_id=f.fiction_id, read=0):
                 chapterList.append(c)
+
+            # Make newest chapters appear on top? Might not want that in production version
+            chapterList.reverse()
 
             fiction = {
                 "name": f.name,

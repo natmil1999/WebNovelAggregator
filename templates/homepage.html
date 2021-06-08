@@ -1,4 +1,8 @@
 <html>
+<nav>
+    <a href="/">My Updated WebNovels</a> |
+    <a href="/static/addFiction.html">Add a New WebNovel</a>
+</nav>
 <head>
     <title>{{ title }}</title>
 </head>
@@ -7,7 +11,9 @@
     {% if fictionListLen > 0 %}
         {% for f in fictionList %}
             <h1>{{ f.get('name') }}</h1>
-            <a href=" {{ f.get('chapters')[0].url }}">{{ f.get('chapters')[0].title }}</a>
+            {% for c in f.get('chapters') %}
+                <a id="{{ c.url }}" href=" {{ c.url }}" onclick="MarkAsRead('{{ c.url }}')"> {{ c.title }} </a>
+            {% endfor %}
         {% endfor %}
     {% else %}
         <h1> {{ sorry }}</h1>
@@ -15,4 +21,52 @@
 
 </div>
 </body>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="{{
+      url_for('static', filename='jquery.js') }}">\x3C/script>')</script>
+<script>
+
+    function MarkAsRead(url) {
+        var myJSON = {
+            "chapter_url": url,
+        };
+        $.ajax({
+            url: '/mark_chapter_as_read',
+            data: myJSON,
+            type: 'POST',
+            success: function (response) {
+                console.log(response);
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+    }
+
+    /**
+     let links = $("a")
+     for (var i = 2; i < links.length; i++) {
+       document.getElementById(links[i].id).addEventListener('click', function(){
+            var myJSON = {
+                "chapter_url": links[i].getAttribute("href"),
+                "chapter_title": links[i].innerHTML,
+                "fiction": ""
+            };
+            $.ajax({
+                url: '/mark_chapter_as_read',
+                data: myJSON,
+                type: 'POST',
+                success: function (response) {
+                    console.log(response);
+                },
+                error: function (error) {
+                    console.log(error);
+                }
+            });
+        });
+    }
+     */
+
+</script>
 </html>
