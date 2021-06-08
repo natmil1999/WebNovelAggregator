@@ -1,11 +1,14 @@
-from flask import Flask
-from bs4 import BeautifulSoup
-import requests
-import imaplib
 import email
+import imaplib
 from email.header import decode_header
+
+from bs4 import BeautifulSoup
+from flask import Flask
+from flask import render_template
 from flask_sqlalchemy import SQLAlchemy
+
 from ChapterRetrievers import RoyalRoadRetriever
+
 app = Flask(__name__)
 
 app.config[
@@ -19,6 +22,8 @@ class Fictions(db.Model):
     fiction_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Text, unique=False, nullable=False)
     url = db.Column(db.Text, unique=True, nullable=False)
+    patreon_RR = db.Column(db.Integer, nullable=False, default=1)
+    author = db.Column(db.Text, nullable=False, default="Filler")
     chapters = db.relationship('Chapters', backref='fictions', lazy=True)
 
     def __repr__(self):
@@ -38,107 +43,127 @@ class Chapters(db.Model):
 @app.route('/')
 def home():
     # Class to web scrape chapter urls from fiction pages
-    retriever = RoyalRoadRetriever()
 
-    # Need fictionurl query
-    fictionUrl = Fictions.query.filter_by(name="Blue Core").first().url
-    soup = retriever.get_web_data(Fictions.query.filter_by(name="Blue Core").first().url)
+    db_utils = DatabaseUtilities()
 
-    chapterList = retriever.get_RR_ChapterList(soup)
-    updateChapters(chapterList)
+    # Add any new chapters from RoyalRoad to database
+    db_utils.update_RR_fictions()
 
-    fiction = Fictions(name='Blue Core', url='https://www.royalroad.com/fiction/25082/blue-core')
-    try:
-        db.session.add(fiction)
-        db.session.commit()
-    except:
-        pass
+    fictionList = db_utils.get_new_chapters()
 
-    emails = read_gmail()
-    html = ""
-    for i in emails:
-        html = html + "<a href = " + i.get('url') + ">" + i.get('chapterTitle') + "</a><br></br>"
-    for i in chapterList:
-        html = html + "<a href = " + i.get('url') + ">" + i.get('title') + "</a><br></br>"
+    # fiction.name
+    # fiction.chapters
+    # chapter.url
+    # chapter.title
 
-    return html
+    return render_template('homepage.html', title='My Updated WebNovels', fictionList=fictionList)
 
 
 if __name__ == '__main__':
     app.run()
 
-def read_gmail():
-    username = "webnovelaggregator1999@gmail.com"
-    password = "18Nmiller="
 
-    # create an IMAP4 class with SSL
-    imap = imaplib.IMAP4_SSL("imap.gmail.com")
-    # authenticate
-    imap.login(username, password)
+class DatabaseUtilities:
+    def update_chapters(self, chapterList):
+        for chapter in chapterList:
+            try:
+                id = Fictions.query.filter_by(name=chapter.get('fiction')).first().fiction_id
+                url = chapter.get('url')
+                if Chapters.query.filter_by(fiction_id=id, url=url).count() == 0:
+                    chappy = Chapters(
+                        fiction_id=Fictions.query.filter_by(name=chapter.get('fiction')).first().fiction_id,
+                        url=chapter.get('url'),
+                        title=chapter.get('title'))
+                    db.session().add(chappy)
+                    db.session.commit()
+            except:
+                pass
 
-    status, messages = imap.select("INBOX")
+    def update_RR_fictions(self):
+        retriever = RoyalRoadRetriever()
+        for f in Fictions.query.all():
+            if f.patreon_RR == 1:
+                soup = retriever.get_web_data(f.url)
+                chapterList = retriever.get_RR_ChapterList(soup)
+                self.update_chapters(chapterList)
 
-    # total number of emails
-    messages = int(messages[0])
+    def read_gmail(self):
+        username = "webnovelaggregator1999@gmail.com"
+        password = "18Nmiller="
 
-    for i in range(1, messages + 1):
+        # create an IMAP4 class with SSL
+        imap = imaplib.IMAP4_SSL("imap.gmail.com")
+        # authenticate
+        imap.login(username, password)
 
-        emails = []
-        # fetch the email message by ID
-        res, msg = imap.fetch(str(i), "(RFC822)")
-        for response in msg:
-            if isinstance(response, tuple):
-                # parse a bytes email into a message object
-                msg = email.message_from_bytes(response[1])
-                # decode the email subject
-                subject, encoding = decode_header(msg["Subject"])[0]
-                if isinstance(subject, bytes):
-                    # if it's a bytes, decode to str
-                    subject = subject.decode(encoding)
-                # decode email sender
-                From, encoding = decode_header(msg.get("From"))[0]
-                if isinstance(From, bytes):
-                    From = From.decode(encoding)
+        status, messages = imap.select("INBOX")
 
-                # if the email message is multipart
-                msg.walk()
-                msg.walk()
-                if msg.is_multipart():
-                    # iterate over email parts
-                    for part in msg.walk():
+        # total number of emails
+        messages = int(messages[0])
+
+        for i in range(1, messages + 1):
+
+            emails = []
+            # fetch the email message by ID
+            res, msg = imap.fetch(str(i), "(RFC822)")
+            for response in msg:
+                if isinstance(response, tuple):
+                    # parse a bytes email into a message object
+                    msg = email.message_from_bytes(response[1])
+                    # decode the email subject
+                    subject, encoding = decode_header(msg["Subject"])[0]
+                    if isinstance(subject, bytes):
+                        # if it's a bytes, decode to str
+                        subject = subject.decode(encoding)
+                    # decode email sender
+                    From, encoding = decode_header(msg.get("From"))[0]
+                    if isinstance(From, bytes):
+                        From = From.decode(encoding)
+
+                    # if the email message is multipart
+                    msg.walk()
+                    msg.walk()
+                    if msg.is_multipart():
+                        # iterate over email parts
+                        for part in msg.walk():
+                            # extract content type of email
+                            content_type = part.get_content_type()
+                            content_disposition = str(part.get("Content-Disposition"))
+                            try:
+                                # get the email body
+                                body = part.get_payload(decode=True).decode()
+                            except:
+                                pass
+
+
+                    else:
                         # extract content type of email
-                        content_type = part.get_content_type()
-                        content_disposition = str(part.get("Content-Disposition"))
-                        try:
-                            # get the email body
-                            body = part.get_payload(decode=True).decode()
-                        except:
-                            pass
+                        content_type = msg.get_content_type()
+                        # get the email body
+                        body = msg.get_payload(decode=True).decode()
+            name = subject.replace('for patrons only', '')[1:]
+            name = name.split('"')[1]
+            chapter = {"chapterTitle": name,
+                       "url": BeautifulSoup(body, 'lxml').find_all('a')[2].attrs.get('href')
+                       # Add author data
+                       }
+            emails.append(chapter)
+        # close the connection and logout
+        imap.close()
+        imap.logout()
+        return emails
 
+    def get_new_chapters(self):
+        fictions = []
+        for f in Fictions.query.all():
+            chapterList = []
+            for c in Chapters.query.filter_by(fiction_id=f.fiction_id, read=0):
+                chapterList.append(c)
 
-                else:
-                    # extract content type of email
-                    content_type = msg.get_content_type()
-                    # get the email body
-                    body = msg.get_payload(decode=True).decode()
-        name = subject.replace('for patrons only', '')[1:]
-        name = name.split('"')[1]
-        chapter = {"chapterTitle": name,
-                   "url": BeautifulSoup(body, 'lxml').find_all('a')[2].attrs.get('href')
-                   }
-        emails.append(chapter)
-    # close the connection and logout
-    imap.close()
-    imap.logout()
-    return emails
+            fiction = {
+                "name": f.name,
+                "chapters": chapterList
+            }
+            fictions.append(fiction)
 
-def updateChapters(chapterList):
-    for chapter in chapterList:
-        try:
-            chappy = Chapters(fiction_id=Fictions.query.filter_by(name=chapter.get('fiction')).first().fiction_id, url=chapter.get('url'),
-                              title=chapter.get('title'))
-            db.session().add(chappy)
-            db.session.commit()
-        except:
-            pass
-
+        return fictions

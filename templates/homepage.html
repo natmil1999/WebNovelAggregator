@@ -1,0 +1,13 @@
+<html>
+<head>
+    <title>{{ title }}</title>
+</head>
+<body>
+<div>
+    {% for f in fictionList %}
+        <h1>{{ f.get('name') }}</h1>
+        <a href=" {{ f.get('chapters')[0].url }}">{{ f.get('chapters')[0].title }}</a>
+    {% endfor %}
+</div>
+</body>
+</html>
