@@ -51,12 +51,9 @@ def home():
 
     fictionList = db_utils.get_new_chapters()
 
-    # fiction.name
-    # fiction.chapters
-    # chapter.url
-    # chapter.title
-
-    return render_template('homepage.html', title='My Updated WebNovels', fictionList=fictionList)
+    # db_utils.mark_all_as_read(Fictions.query.all()[1])
+    return render_template('homepage.html', title='My Updated WebNovels', fictionList=fictionList,
+                           fictionListLen=len(fictionList), sorry="No New Chapters, sorry ):")
 
 
 if __name__ == '__main__':
@@ -164,6 +161,18 @@ class DatabaseUtilities:
                 "name": f.name,
                 "chapters": chapterList
             }
-            fictions.append(fiction)
+            if len(chapterList) > 0:
+                fictions.append(fiction)
 
         return fictions
+
+    def mark_all_as_read(self, fiction):
+        retriever = RoyalRoadRetriever()
+        soup = retriever.get_web_data(fiction.url)
+        chapterList = retriever.get_RR_ChapterList(soup)
+        for c in chapterList:
+            try:
+                Chapters.query.filter_by(url=c.get('url')).first().read = 1
+                db.session.commit()
+            except:
+                pass

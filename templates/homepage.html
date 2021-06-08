@@ -4,10 +4,15 @@
 </head>
 <body>
 <div>
-    {% for f in fictionList %}
-        <h1>{{ f.get('name') }}</h1>
-        <a href=" {{ f.get('chapters')[0].url }}">{{ f.get('chapters')[0].title }}</a>
-    {% endfor %}
+    {% if fictionListLen > 0 %}
+        {% for f in fictionList %}
+            <h1>{{ f.get('name') }}</h1>
+            <a href=" {{ f.get('chapters')[0].url }}">{{ f.get('chapters')[0].title }}</a>
+        {% endfor %}
+    {% else %}
+        <h1> {{ sorry }}</h1>
+    {% endif %}
+
 </div>
 </body>
 </html>
