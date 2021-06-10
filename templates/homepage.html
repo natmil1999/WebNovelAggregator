@@ -1,4 +1,5 @@
 <html>
+<meta http-equiv="refresh" content="90">
 <nav>
     <a href="/">My Updated WebNovels</a> |
     <a href="/static/addFiction.html">Add a New WebNovel</a>
@@ -12,7 +13,8 @@
         {% for f in fictionList %}
             <h1>{{ f.get('name') }}</h1>
             {% for c in f.get('chapters') %}
-                <a id="{{ c.url }}" href=" {{ c.url }}" onclick="MarkAsRead('{{ c.url }}')"> {{ c.title }} </a>
+                <a id="{{ c.url }}" href=" {{ c.url }}" onclick="MarkAsRead('{{ c.url }}')"
+                   target="_blank"> {{ c.title }} </a> <br>
             {% endfor %}
         {% endfor %}
     {% else %}
@@ -44,29 +46,6 @@
         });
     }
 
-    /**
-     let links = $("a")
-     for (var i = 2; i < links.length; i++) {
-       document.getElementById(links[i].id).addEventListener('click', function(){
-            var myJSON = {
-                "chapter_url": links[i].getAttribute("href"),
-                "chapter_title": links[i].innerHTML,
-                "fiction": ""
-            };
-            $.ajax({
-                url: '/mark_chapter_as_read',
-                data: myJSON,
-                type: 'POST',
-                success: function (response) {
-                    console.log(response);
-                },
-                error: function (error) {
-                    console.log(error);
-                }
-            });
-        });
-    }
-     */
 
 </script>
 </html>

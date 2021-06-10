@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 from flask import Flask
 from flask import redirect
 from flask import render_template
-from flask import request
+from flask import request, url_for
 from flask_sqlalchemy import SQLAlchemy
 
 from ChapterRetrievers import RoyalRoadRetriever
@@ -66,11 +66,12 @@ def home():
 @app.route('/addFiction', methods=['GET', 'POST'])
 def addFiction():
     try:
+        db_utils = DatabaseUtilities()
         if request.method == 'POST':
-            fiction = request.form.get("fname")
-            author = request.form.get("fauth")
-            url = request.form.get("furl")
-            site = request.form.get("fsite")
+            fiction = request.form.get("fname").strip()
+            author = request.form.get("fauth").strip()
+            url = request.form.get("furl").strip()
+            site = request.form.get("fsite").strip()
             fic = Fictions(
                 name=fiction,
                 url=url,
@@ -79,8 +80,10 @@ def addFiction():
             )
             db.session().add(fic)
             db.session.commit()
+            db_utils.mark_all_as_read(url)
     except:
         pass
+
     return redirect('/')
 
 
@@ -91,7 +94,7 @@ def mark_chapter_as_read():
     db.session.commit()
 
     # Refresh the page
-    return redirect('/')
+    return redirect(url_for('/'))
 
 
 if __name__ == '__main__':
@@ -224,9 +227,9 @@ class DatabaseUtilities:
 
         return fictions
 
-    def mark_all_as_read(self, fiction):
+    def mark_all_as_read(self, url):
         retriever = RoyalRoadRetriever()
-        soup = retriever.get_web_data(fiction.url)
+        soup = retriever.get_web_data(url)
         chapterList = retriever.get_RR_ChapterList(soup)
         for c in chapterList:
             try:
