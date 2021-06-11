@@ -42,6 +42,7 @@ class Chapters(db.Model):
     def __repr__(self):
         return '<Chapter %r>' % self.title
 
+
 @app.route('/')
 def home():
     # Class to web scrape chapter urls from fiction pages
@@ -80,6 +81,8 @@ def addFiction():
             )
             db.session().add(fic)
             db.session.commit()
+            db_utils.update_patreon_chapters()
+            db_utils.update_RR_fictions()
             db_utils.mark_all_as_read(url)
     except:
         pass
@@ -89,9 +92,10 @@ def addFiction():
 
 @app.route('/mark_chapter_as_read', methods=['GET', 'POST'])
 def mark_chapter_as_read():
+    db_utils = DatabaseUtilities()
+
     # Mark the chapter as read
-    Chapters.query.filter_by(url=request.form.get('chapter_url')).first().read = 1
-    db.session.commit()
+    db_utils.mark_chapter_as_read(request.form.get('chapter_url'))
 
     # Refresh the page
     return redirect(url_for('/'))
@@ -143,6 +147,7 @@ class DatabaseUtilities:
                 self.update_RR_chapters(chapterList)
 
     def read_gmail(self):
+        global subject, body
         username = "webnovelaggregator1999@gmail.com"
         password = "18Nmiller="
 
@@ -232,8 +237,11 @@ class DatabaseUtilities:
         soup = retriever.get_web_data(url)
         chapterList = retriever.get_RR_ChapterList(soup)
         for c in chapterList:
-            try:
-                Chapters.query.filter_by(url=c.get('url')).first().read = 1
-                db.session.commit()
-            except:
-                pass
+            self.mark_chapter_as_read(c.get('url'))
+
+    def mark_chapter_as_read(self, url):
+        try:
+            Chapters.query.filter_by(url=url).first().read = 1
+            db.session.commit()
+        except:
+            print("Error marking chapter as read: " + url)
