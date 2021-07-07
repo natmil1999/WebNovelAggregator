@@ -66,10 +66,10 @@ class DatabaseUtilities:
             except:
                 print("Failed to add chapter: %s" % chapter.get('title'))
 
-    def update_RR_fictions(self):
+    def update_RR_fictions(self, url=''):
         retriever = RoyalRoadRetriever()
         for f in self.Fictions.query.all():
-            if f.patreon_RR == 1:
+            if f.patreon_RR == 1 or f.url == url:
                 soup = retriever.get_web_data(f.url)
                 chapterList = retriever.get_RR_ChapterList(soup)
                 self.update_RR_chapters(chapterList)
@@ -179,16 +179,16 @@ class DatabaseUtilities:
         except:
             print("Error marking chapter as read: " + url)
 
-    def add_fiction(self, fiction_data):
+    def add_fiction(self, fiction, author, url, site):
 
         fic = self.Fictions(
-            name=fiction_data.fiction,
-            url=fiction_data.url,
-            author=fiction_data.author,
-            patreon_RR=fiction_data.site
+            name=fiction,
+            url=url,
+            author=author,
+            patreon_RR=site
         )
         try:
             self.db.session().add(fic)
             self.db.session.commit()
         except:
-            print("Failed to add fiction: " + fiction_data.fiction)
+            print("Failed to add fiction: " + fiction)

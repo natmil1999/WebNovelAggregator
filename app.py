@@ -41,9 +41,9 @@ def add_fiction():
         author = request.form.get("fauth").strip()
         url = request.form.get("furl").strip()
         site = request.form.get("fsite").strip()
-        db_utils.add_fiction((fiction, author, url, site))
+        db_utils.add_fiction(fiction, author, url, site)
         db_utils.update_patreon_chapters()
-        db_utils.update_RR_fictions()
+        db_utils.update_RR_fictions(url)
         db_utils.mark_all_as_read(url)
     return redirect('/')
 
