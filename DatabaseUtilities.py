@@ -1,5 +1,6 @@
 import email
 import imaplib
+import time
 from email.header import decode_header
 
 from bs4 import BeautifulSoup
@@ -36,7 +37,11 @@ class DatabaseUtilities:
         self.Chapters = Chapters
 
     def update_patreon_chapters(self):
+
+        start = time.perf_counter()
         emails = self.read_gmail()
+        print("Time taken to read emails: %f" % (time.perf_counter() - start))
+
         for chapter in emails:
             try:
                 fiction_id = self.Fictions.query.filter_by(author=chapter.get('author')).first().fiction_id
@@ -76,8 +81,14 @@ class DatabaseUtilities:
 
     def read_gmail(self):
         global subject, body
+        start = time.perf_counter()
         username = "webnovelaggregator1999@gmail.com"
-        password = "18Nmiller="
+
+        # Open file holding password
+        hiddenPassword = open("Password.txt", "r")
+
+        # Set password to be the first line of the Password file that is stored locally.
+        password = hiddenPassword.readline()
 
         # create an IMAP4 class with SSL
         imap = imaplib.IMAP4_SSL("imap.gmail.com")
@@ -85,10 +96,11 @@ class DatabaseUtilities:
         imap.login(username, password)
 
         status, messages = imap.select("INBOX")
-
+        print("Time taken to connect to inbox: %f" % (time.perf_counter() - start))
         # total number of emails
         messages = int(messages[0])
         emails = []
+        start = time.perf_counter()
         for i in range(1, messages + 1):
 
             # fetch the email message by ID
@@ -121,8 +133,6 @@ class DatabaseUtilities:
                                 body = part.get_payload(decode=True).decode()
                             except:
                                 pass
-
-
                     else:
                         # extract content type of email
                         content_type = msg.get_content_type()
@@ -141,9 +151,23 @@ class DatabaseUtilities:
                            }
                 emails.append(chapter)
 
+        print("Time taken to loop through inbox: %f" % (time.perf_counter() - start))
+
+        start = time.perf_counter()
+        # Mark all emails for deletion
+        typ, data = imap.search(None, 'ALL')
+        for num in data[0].split():
+            imap.store(num, '+FLAGS', '\\Deleted')
+
+        # delete the emails marked for deletion
+        imap.expunge()
+        print("Time taken to delete inbox: %f" % (time.perf_counter() - start))
+
+        start = time.perf_counter()
         # close the connection and logout
         imap.close()
         imap.logout()
+        print("Time taken to close inbox: %f" % (time.perf_counter() - start))
         return emails
 
     def get_new_chapters(self):

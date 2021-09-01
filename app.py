@@ -1,3 +1,5 @@
+import time
+
 from flask import Flask
 from flask import redirect
 from flask import render_template
@@ -20,16 +22,21 @@ db_utils = DatabaseUtilities(app)
 @app.route('/')
 def home():
     # Add any new chapters from RoyalRoad to database
+    start = time.perf_counter()
     db_utils.update_RR_fictions()
+    print("Time taken to update RR Fictions: %f" % (time.perf_counter() - start))
 
     # Add new chapters from the emails in aggregator inbox
+    start = time.perf_counter()
     db_utils.update_patreon_chapters()
+    print("Time taken to update Patreon Chapters: %f" % (time.perf_counter() - start))
 
+    start = time.perf_counter()
     fiction_list = db_utils.get_new_chapters()
+    print("Time taken to get new chapters for fiction_list: %f" % (time.perf_counter() - start))
 
     # Mark all chapters of a fiction as read
     # db_utils.mark_all_as_read(Fictions.query.all()[1])
-
     return render_template('homepage.html', title='My Updated WebNovels', fictionList=fiction_list,
                            fictionListLen=len(fiction_list), sorry="No New Chapters, sorry ):")
 
