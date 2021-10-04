@@ -30,4 +30,3 @@ The server can be started using 'python app.py' when in the program directory in
 
 This is mainly a personal use project. Updates to allow for easier use by other users in the future may be added depending on interest.
 
-Notes 
