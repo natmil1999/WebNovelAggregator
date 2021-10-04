@@ -26,4 +26,4 @@ New webnovels can be added on the addfiction page by entering the information
 
 The server can be started using 'python app.py' when in the program directory in windows command prompt.
 
-Possible updates to allow for easier use by other users in the future may be added depending on interest.
+This is mainly a personal use project. Updates to allow for easier use by other users in the future may be added depending on interest.
