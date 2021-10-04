@@ -4,6 +4,8 @@ This server connects with the database (No support has been added to change the 
 top of app.py must be changed in the code for it to work properly for other users.)
 to display chapters from webnovels listed in the database that the reader has not yet read.
 
+A initDatabase file has been provided, but has not been tested. 
+
 When one of the chapter links displayed is clicked, the server registers that chapter as read and no longer displays it.
 
 Only webnovels with new chapters will be displayed.
@@ -27,3 +29,5 @@ New webnovels can be added on the addfiction page by entering the information
 The server can be started using 'python app.py' when in the program directory in windows command prompt.
 
 This is mainly a personal use project. Updates to allow for easier use by other users in the future may be added depending on interest.
+
+Notes 
