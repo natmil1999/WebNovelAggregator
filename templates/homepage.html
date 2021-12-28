@@ -5,17 +5,30 @@
     <a href="/static/addFiction.html">Add a New WebNovel</a>
 </nav>
 <head>
+    <link rel="stylesheet" href="/static/homepage_css.css">
     <title>{{ title }}</title>
 </head>
 <body>
+
 <div>
     {% if fictionListLen > 0 %}
         {% for f in fictionList %}
-            <h1>{{ f.get('name') }}</h1>
-            {% for c in f.get('chapters') %}
-                <a id="{{ c.url }}" href=" {{ c.url }}" onclick="MarkAsRead('{{ c.url }}')"
-                   target="_blank"> {{ c.title }} </a> <br>
-            {% endfor %}
+            <h1>{{ f }}</h1>
+            <div class="chapters" id="{{ f }}">
+                <button type="button" class="collapsible">Show More Chapters</button>
+
+                <a class="alwaysShow" id="{{ fictionList[f][1][0].url }}" href=" {{ fictionList[f][1][0].url }}"
+                   onclick="MarkAsRead('{{ fictionList[f][1][0].url }}')"
+                   target="_blank"> {{ fictionList[f][1][0].title }} </a>
+                {% for c in fictionList[f][1][1:fictionList[f][0]-1] %}
+                    <a class="hiddenChapters" id="{{ c.url }}" href=" {{ c.url }}" onclick="MarkAsRead('{{ c.url }}')"
+                       target="_blank"> {{ c.title }} </a>
+                {% endfor %}
+                <a class="alwaysShow" id="{{ fictionList[f][1][fictionList[f][0]-1].url }}"
+                   href=" {{ fictionList[f][1][fictionList[f][0]-1].url }}"
+                   onclick="MarkAsRead('{{ fictionList[f][1][fictionList[f][0]-1].url }}')"
+                   target="_blank"> {{ fictionList[f][1][fictionList[f][0]-1].title }} </a>
+            </div>
         {% endfor %}
     {% else %}
         <h1> {{ sorry }}</h1>
@@ -46,6 +59,28 @@
         });
     }
 
+    //Code from https://www.w3schools.com/howto/howto_js_collapsible.asp
+    var coll = document.getElementsByClassName("collapsible");
+    var i;
 
+
+    for (i = 0; i < coll.length; i++) {
+        coll[i].addEventListener("click", function () {
+            this.classList.toggle("active");
+            var fictionTitle = this.parentElement.id;
+
+            var x = document.getElementById(fictionTitle).querySelectorAll("a.hiddenChapters");
+
+            for (let i = 0; i < x.length; i++) {
+                //Show hidden chapters and hide shown chapters
+                if (x[i].style.display === "block") {
+                    x[i].style.display = "none";
+                } else {
+                    x[i].style.display = "block";
+                }
+            }
+            //coll[i].click();
+            //coll[i].click();
+        });
+    }
 </script>
-</html>

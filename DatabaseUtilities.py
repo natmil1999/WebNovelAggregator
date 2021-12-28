@@ -171,7 +171,11 @@ class DatabaseUtilities:
         return emails
 
     def get_new_chapters(self):
-        fictions = []
+
+        # Dict of fictions and chapter lists.
+        # Key = string of fiction name
+        # Value = tuple of (len of chapter list, list of chapters)
+        fictions = {}
         for f in self.Fictions.query.all():
             chapterList = []
             for c in self.Chapters.query.filter_by(fiction_id=f.fiction_id, read=0):
@@ -180,12 +184,13 @@ class DatabaseUtilities:
             # Make newest chapters appear on top? Might not want that in production version
             chapterList.reverse()
 
-            fiction = {
-                "name": f.name,
-                "chapters": chapterList
-            }
+            # fiction = {
+            #    "name": f.name,
+            #    "chapters": chapterList
+            # }
+
             if len(chapterList) > 0:
-                fictions.append(fiction)
+                fictions[str(f.name)] = (len(chapterList), chapterList)
 
         return fictions
 

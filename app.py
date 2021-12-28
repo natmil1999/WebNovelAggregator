@@ -32,11 +32,16 @@ def home():
     print("Time taken to update Patreon Chapters: %f" % (time.perf_counter() - start))
 
     start = time.perf_counter()
+
+    # Dict of fictions and chapter lists.
+    # Key = string of fiction name
+    # Value = tuple of (len of chapter list, list of chapters)
     fiction_list = db_utils.get_new_chapters()
     print("Time taken to get new chapters for fiction_list: %f" % (time.perf_counter() - start))
 
     # Mark all chapters of a fiction as read
     # db_utils.mark_all_as_read(Fictions.query.all()[1])
+
     return render_template('homepage.html', title='My Updated WebNovels', fictionList=fiction_list,
                            fictionListLen=len(fiction_list), sorry="No New Chapters, sorry ):")
 
