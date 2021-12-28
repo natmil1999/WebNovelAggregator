@@ -4,6 +4,8 @@ This server connects with the database (No support has been added to change the 
 top of app.py must be changed in the code for it to work properly for other users.)
 to display chapters from webnovels listed in the database that the reader has not yet read.
 
+A initDatabase file has been provided, but has not been tested. 
+
 When one of the chapter links displayed is clicked, the server registers that chapter as read and no longer displays it.
 
 Only webnovels with new chapters will be displayed.
@@ -22,8 +24,12 @@ has "just shared" in it.
 
 The chapter displayed on the webserver will link to the pateron post with the new chapter (Post from author).
 
-New webnovels can be added on the addfiction page by entering the information
+New webnovels can be added on the addfiction page by entering the information. The addFiction page asks for the title of the novel on royalroad, the url of the fiction page on royalroad, then name of the author (On patreon, not on RR), and 0 to update chapters from patreon or 1 to update chapters from royalroad.
+When new fictions are added, all the fictions current chapters are scraped and added to the database as read. This is to avoid having potentially 100's of chapters added to the server display screen that the user has already read, and would have to manually click each chapter to remove them from the display. 
+
+Functionality to make updates or deletions to the database has not been added, this needs to be done manually.
 
 The server can be started using 'python app.py' when in the program directory in windows command prompt.
 
-Possible updates to allow for easier use by other users in the future may be added depending on interest.
+This is mainly a personal use project. Updates to allow for easier use by other users in the future may be added depending on interest.
+
