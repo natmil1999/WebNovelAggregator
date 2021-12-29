@@ -1,10 +1,10 @@
 A flask program that runs a local server and monitors for new chapters from webnovels.
 
-This server connects with the database (No support has been added to change the database. The database file path at the
+This server connects with the database (No support has been added to change the database besides adding new webnovels. The database file path at the
 top of app.py must be changed in the code for it to work properly for other users.)
 to display chapters from webnovels listed in the database that the reader has not yet read.
 
-A initDatabase file has been provided, but has not been tested. 
+A identifier.sqlite file has been provided. This file is a blank database that should work once the database file path at the top of app.py has been adjusted. 
 
 When one of the chapter links displayed is clicked, the server registers that chapter as read and no longer displays it.
 
