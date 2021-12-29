@@ -10,6 +10,7 @@ from DatabaseUtilities import DatabaseUtilities
 
 app = Flask(__name__)
 
+# Absolute File Path for database file. Should be changed for each user.
 app.config[
     'SQLALCHEMY_DATABASE_URI'] = "sqlite:///C:\\Users\\natmi\\PycharmProjects\\WebNovelAggregator\\identifier.sqlite"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False

@@ -17,21 +17,29 @@
                 {{ f }}
                 <button type="button" class="markAsRead" onclick="MarkAllAsRead('{{ f }}')">Mark Chapters As Read</button>
             </h1>
-            <div class="chapters" id="{{ f }}">
-                <button type="button" class="collapsible">Show More Chapters</button>
+            {%  if fictionList[f][0] > 1 %}
+                <div class="chapters" id="{{ f }}">
+                    <button type="button" class="collapsible">Show More Chapters</button>
 
-                <a class="alwaysShow" id="{{ fictionList[f][1][0].url }}" href=" {{ fictionList[f][1][0].url }}"
-                   onclick="MarkAsRead('{{ fictionList[f][1][0].url }}')"
-                   target="_blank"> {{ fictionList[f][1][0].title }} </a>
-                {% for c in fictionList[f][1][1:fictionList[f][0]-1] %}
-                    <a class="hiddenChapters" id="{{ c.url }}" href=" {{ c.url }}" onclick="MarkAsRead('{{ c.url }}')"
-                       target="_blank"> {{ c.title }} </a>
-                {% endfor %}
-                <a class="alwaysShow" id="{{ fictionList[f][1][fictionList[f][0]-1].url }}"
-                   href=" {{ fictionList[f][1][fictionList[f][0]-1].url }}"
-                   onclick="MarkAsRead('{{ fictionList[f][1][fictionList[f][0]-1].url }}')"
-                   target="_blank"> {{ fictionList[f][1][fictionList[f][0]-1].title }} </a>
-            </div>
+                    <a class="alwaysShow" id="{{ fictionList[f][1][0].url }}" href=" {{ fictionList[f][1][0].url }}"
+                       onclick="MarkAsRead('{{ fictionList[f][1][0].url }}')"
+                       target="_blank"> {{ fictionList[f][1][0].title }} </a>
+                    {% for c in fictionList[f][1][1:fictionList[f][0]-1] %}
+                        <a class="hiddenChapters" id="{{ c.url }}" href=" {{ c.url }}" onclick="MarkAsRead('{{ c.url }}')"
+                           target="_blank"> {{ c.title }} </a>
+                    {% endfor %}
+                    <a class="alwaysShow" id="{{ fictionList[f][1][fictionList[f][0]-1].url }}"
+                       href=" {{ fictionList[f][1][fictionList[f][0]-1].url }}"
+                       onclick="MarkAsRead('{{ fictionList[f][1][fictionList[f][0]-1].url }}')"
+                       target="_blank"> {{ fictionList[f][1][fictionList[f][0]-1].title }} </a>
+                </div>
+            {% else %}
+                <div class="chapters" id="{{ f }}">
+                    <a class="alwaysShow" id="{{ fictionList[f][1][0].url }}" href=" {{ fictionList[f][1][0].url }}"
+                       onclick="MarkAsRead('{{ fictionList[f][1][0].url }}')"
+                       target="_blank"> {{ fictionList[f][1][0].title }} </a>
+                </div>
+            {% endif %}
         {% endfor %}
     {% else %}
         <h1> {{ sorry }}</h1>
