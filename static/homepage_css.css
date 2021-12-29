@@ -5,3 +5,10 @@
 .hiddenChapters {
     display: none;
 }
+
+.h1 {
+    display: inline-block;
+}
+.markAsRead {
+    position: relative;
+}

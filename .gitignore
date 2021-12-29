@@ -1,3 +1,8 @@
 /venv/
 /.idea/
 /init.sql
+.dbdata/
+Database Setup/
+Password.txt
+__pycache__/
+identifier.sqlite
