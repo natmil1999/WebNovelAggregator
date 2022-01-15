@@ -15,8 +15,8 @@ The program has support for webnovels on RoyalRoad.com and Patreon.com
 The program cannot webscrape for patreon chapters. Instead, it monitors an email inbox (with settings enabled to allow
 remote access) that patreon sends new post notifications to.
 
-A 'Password.txt' file needs to be made in the project directory that stores the users email password, and the email
-address in function read_gmail in DatabaseUtilites.py needs to be updated for other users to use.
+A 'Patreon_Email_Login.txt' file needs to be made in the project directory that stores the users email username and password.
+This Username and Password file is stored locally.
 
 The server then monitors the email inbox for patreon updates. The server expects the email inbox to only receive emails
 from patreon. The server only has light error checking to make sure that it adds chapters only if the email subject
