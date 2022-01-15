@@ -1,10 +1,14 @@
 A flask program that runs a local server and monitors for new chapters from webnovels.
 
-This server connects with the database (No support has been added to change the database besides adding new webnovels. The database file path at the
-top of app.py must be changed in the code for it to work properly for other users.)
+
+This server connects with the database (No support has been added to change the database besides adding new webnovels.)
 to display chapters from webnovels listed in the database that the reader has not yet read.
 
-A identifier.sqlite file has been provided. This file is a blank database that should work once the database file path at the top of app.py has been adjusted. 
+The program must be placed into the Windows C drive, into the Program Files folder "C:\Program Files". 
+The folder with the program must be named WebNovelAggregator. This is so that the program can properly locate the 
+identifier.sqlite database file.
+
+A identifier.sqlite file has been provided. This file is a blank database that the webnovel fictions and chapters will be stored in.
 
 When one of the chapter links displayed is clicked, the server registers that chapter as read and no longer displays it.
 
@@ -30,6 +34,7 @@ When new fictions are added, all the fictions current chapters are scraped and a
 Functionality to make updates or deletions to the database has not been added, this needs to be done manually.
 
 The server can be started using 'python app.py' when in the program directory in windows command prompt.
+The command cd "C:\Program Files\WebNovelAggregator && python app.py" can be used to navigate to the program directory and run it in one line.
 
 This is mainly a personal use project. Updates to allow for easier use by other users in the future may be added depending on interest.
 
