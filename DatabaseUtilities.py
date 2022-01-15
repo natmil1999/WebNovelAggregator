@@ -82,13 +82,15 @@ class DatabaseUtilities:
     def read_gmail(self):
         global subject, body
         start = time.perf_counter()
-        username = "webnovelaggregator1999@gmail.com"
 
-        # Open file holding password
-        hiddenPassword = open("Password.txt", "r")
+        # Open file holding email login username and password
+        hiddenPassword = open("Patreon_Email_Login.txt", "r")
 
-        # Set password to be the first line of the Password file that is stored locally.
-        password = hiddenPassword.readline()
+        # Set email username to be the first line of the login file that is stored locally.
+        username = hiddenPassword.readline().strip()
+
+        # Set password to be the second line of the Password file that is stored locally.
+        password = hiddenPassword.readline().strip()
 
         # create an IMAP4 class with SSL
         imap = imaplib.IMAP4_SSL("imap.gmail.com")
