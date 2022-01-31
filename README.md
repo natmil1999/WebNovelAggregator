@@ -28,10 +28,10 @@ has "just shared" in it.
 
 The chapter displayed on the webserver will link to the pateron post with the new chapter (Post from author).
 
-New webnovels can be added on the addfiction page by entering the information. The addFiction page asks for the title of the novel on royalroad, the url of the fiction page on royalroad, then name of the author (On patreon, not on RR), and 0 to update chapters from patreon or 1 to update chapters from royalroad.
-When new fictions are added, all the fictions current chapters are scraped and added to the database as read. This is to avoid having potentially 100's of chapters added to the server display screen that the user has already read, and would have to manually click each chapter to remove them from the display. 
+New webnovels can be added on the addfiction page by entering the information. The addFiction page asks for the title of the novel on royalroad, the url of the fiction page on royalroad, then name of the author (On patreon, not on RR), and 0 if new chapters will be on patreon or 1 to monitor for new chapters from royalroad.
+When new fictions are added, all the fictions current chapters are scraped and added to the database as read. This is to avoid having potentially 100's of chapters added to the server display screen that the user has already read. 
 
-Functionality to make updates or deletions to the database has not been added, this needs to be done manually.
+Functionality to make updates or deletions to the database has not been added.
 
 The server can be started using 'python app.py' when in the program directory in windows command prompt.
 The command cd "C:\Program Files\WebNovelAggregator && python app.py" can be used to navigate to the program directory and run it in one line.
