@@ -36,5 +36,7 @@ Functionality to make updates or deletions to the database has not been added.
 The server can be started using 'python app.py' when in the program directory in windows command prompt.
 The command cd "C:\Program Files\WebNovelAggregator && python app.py" can be used to navigate to the program directory and run it in one line.
 
+If you wish to regularly use this local server, it may be useful to use windows task scheduler (or a different mecahnism) to run the above command on startup; there are many resources online on how to do this.
+
 This is mainly a personal use project. Updates to allow for easier use by other users in the future may be added depending on interest.
 
