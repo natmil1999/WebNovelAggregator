@@ -32,35 +32,44 @@ def home():
     db_utils.update_patreon_chapters()
     print("Time taken to update Patreon Chapters: %f" % (time.perf_counter() - start))
 
-    start = time.perf_counter()
 
     # Dict of fictions and chapter lists.
     # Key = string of fiction name
     # Value = tuple of (len of chapter list, list of chapters)
     fiction_list = db_utils.get_new_chapters()
-    print("Time taken to get new chapters for fiction_list: %f" % (time.perf_counter() - start))
 
     # Mark all chapters of a fiction as read
     # db_utils.mark_all_as_read(Fictions.query.all()[1])
 
+    # Pass all necessary chapter and fiction information to be rendered by the template
     return render_template('homepage.html', title='My Updated WebNovels', fictionList=fiction_list,
                            fictionListLen=len(fiction_list), sorry="No New Chapters, sorry ):")
 
 
 @app.route('/addFiction', methods=['GET', 'POST'])
 def add_fiction():
+    # Get the form from the webpage with new fiction information
     if request.method == 'POST':
         fiction = request.form.get("fname").strip()
         author = request.form.get("fauth").strip()
         url = request.form.get("furl").strip()
         site = request.form.get("fsite").strip()
+
+        # Add the fiction to the database
         db_utils.add_fiction(fiction, author, url, site)
-        db_utils.update_patreon_chapters()
-        db_utils.update_RR_fictions(url)
+
+        # Update the fiction with its chapters based on the site specified
+        if site == 0:
+            db_utils.update_patreon_chapters()
+        else:
+            db_utils.update_RR_fictions(url)
+
+        # Mark all of the fiction's chapters as read
         db_utils.mark_all_as_read(url)
     return redirect('/')
 
 
+# Mark a chapter that is clicked on as read in the database
 @app.route('/mark_chapter_as_read', methods=['GET', 'POST'])
 def mark_chapter_as_read():
     # Mark the chapter as read
@@ -68,7 +77,6 @@ def mark_chapter_as_read():
 
     # Refresh the page
     return redirect('/')
-
 
 if __name__ == '__main__':
     app.run()
