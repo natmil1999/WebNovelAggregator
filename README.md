@@ -19,12 +19,12 @@ The program has support for webnovels on RoyalRoad.com and Patreon.com
 The program cannot webscrape for patreon chapters. Instead, it monitors an email inbox (with settings enabled to allow
 remote access) that patreon sends new post notifications to.
 
+It is recommended that a user forwards patreon emails to a new email account that the server then checks.
+
 A 'Patreon_Email_Login.txt' file needs to be made in the project directory that stores the users email username and password.
 This Username and Password file is stored locally.
 
-The server then monitors the email inbox for patreon updates. The server expects the email inbox to only receive emails
-from patreon. The server only has light error checking to make sure that it adds chapters only if the email subject
-has "just shared" in it.
+The server then monitors the email inbox for patreon updates.
 
 The chapter displayed on the webserver will link to the pateron post with the new chapter (Post from author).
 
